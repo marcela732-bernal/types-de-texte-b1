@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atelier d'Écriture FLE</title>
+    <!-- Importation de Tailwind CSS pour les styles -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-50 font-sans text-gray-800 p-4 sm:p-8">
+
+    <div id="app-container" class="max-w-5xl mx-auto">
+        <!-- En-tête -->
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-extrabold text-indigo-900 mb-2">🚀 Atelier d'Écriture : B1</h1>
+            <p class="text-lg text-indigo-600 font-medium">Maîtriser la structure des textes en français</p>
+        </header>
+
+        <!-- Onglets de Navigation -->
+        <div class="flex flex-wrap justify-center gap-2 mb-8 bg-white p-2 rounded-2xl shadow-sm border border-gray-200">
+            <button id="btn-structure" onclick="app.switchTab('structure')" class="tab-btn px-6 py-3 rounded-xl font-bold transition-all bg-blue-600 text-white shadow-md">
+                1. La Structure
+            </button>
+            <button id="btn-ordre" onclick="app.switchTab('ordre')" class="tab-btn px-6 py-3 rounded-xl font-bold transition-all text-gray-600 hover:bg-gray-100">
+                2. Mettre en ordre
+            </button>
+            <button id="btn-arguments" onclick="app.switchTab('arguments')" class="tab-btn px-6 py-3 rounded-xl font-bold transition-all text-gray-600 hover:bg-gray-100">
+                3. Arguments & Exemples
+            </button>
+        </div>
+
+        <!-- Contenu Dynamique des Onglets -->
+        <main class="bg-white/50 rounded-3xl p-1">
+            <div id="tab-structure" class="tab-content space-y-6"></div>
+            <div id="tab-ordre" class="tab-content space-y-6 hidden"></div>
+            <div id="tab-arguments" class="tab-content space-y-6 hidden"></div>
+        </main>
+
+        <footer class="mt-12 text-center text-sm text-gray-400">
+            Conçu pour les apprenants de FLE - Niveau B1
+        </footer>
+    </div>
+
+    <script>
+        // --- DONNÉES PÉDAGOGIQUES ---
+        const DATA = {
+            STRUCTURES: {
+                lettre: {
+                    id: 'lettre',
+                    title: "La lettre amicale",
+                    parts: [
+                        "Le lieu et la date (ex: Bogota, le 15 mai)",
+                        "La formule d'appel (ex: Cher Diego, / Salut Ana,)",
+                        "L'introduction (Prendre des nouvelles, annoncer le but de la lettre)",
+                        "Le développement (Raconter l'événement principal, donner des détails)",
+                        "La conclusion (Clôturer le sujet, demander une réponse)",
+                        "La formule de politesse (ex: À bientôt, / Grosses bises,)",
+                        "La signature (Ton prénom)"
+                    ]
+                },
+                essai: {
+                    id: 'essai',
+                    title: "L'essai (Argumentation)",
+                    parts: [
+                        "Introduction - L'amorce (Présenter le thème général)",
+                        "Introduction - La problématique (Poser la question principale)",
+                        "Développement - Thèse / Argument 1 avec son exemple",
+                        "Développement - Antithèse / Argument 2 avec son exemple",
+                        "Conclusion - Le bilan (Résumé de ton opinion)",
+                        "Conclusion - L'ouverture (Une nouvelle question pour faire réfléchir)"
+                    ]
+                },
+                article: {
+                    id: 'article',
+                    title: "L'article pour le journal du lycée",
+                    parts: [
+                        "Le grand titre (Accrocheur, donne le thème)",
+                        "Le chapeau (Petit paragraphe qui résume l'article)",
+                        "Le corps de l'article - Paragraphe 1 (Qui, quoi, où, quand ?)",
+                        "Le corps de l'article - Paragraphe 2 (Explications, témoignages)",
+                        "La chute (La conclusion de l'article)",
+                        "La signature (Nom de l'auteur / journaliste)"
+                    ]
+                },
+                forum: {
+                    id: 'forum',
+                    title: "La participation à un forum en ligne",
+                    parts: [
+                        "Titre de la réponse (ex: Re: Faut-il interdire les devoirs ?)",
+                        "Salutation aux membres du forum (ex: Bonjour à tous,)",
+                        "Position claire (ex: Je suis totalement contre cette idée...)",
+                        "Explication de tes arguments",
+                        "Demande d'opinion aux autres (ex: Et vous, qu'en pensez-vous ?)",
+                        "Salutation de fin et pseudo"
+                    ]
+                }
+            },
+            TEXTES_DESORDRE: [
+                {
+                    id: 1,
+                    title: "Texte 1 : Un essai sur l'uniforme scolaire",
+                    correctOrder: [
+                        "De nos jours, de plus en plus de collèges réfléchissent à l'idée d'imposer un uniforme aux élèves. Mais est-ce vraiment une bonne solution pour améliorer la vie scolaire ?",
+                        "D'une part, l'uniforme permet de réduire les inégalités sociales. En effet, si tout le monde s'habille de la même manière, il n'y a plus de moqueries sur les marques de vêtements. C'est un moyen de créer plus d'égalité.",
+                        "D'autre part, beaucoup d'élèves pensent que l'uniforme empêche d'exprimer sa personnalité. À l'adolescence, choisir ses vêtements est une façon de montrer qui l'on est et d'affirmer ses goûts personnels.",
+                        "En conclusion, bien que l'uniforme puisse régler certains problèmes de discrimination, je pense qu'il limite trop la liberté d'expression des jeunes. Et vous, seriez-vous prêts à porter le même vêtement tous les jours ?"
+                    ]
+                },
+                {
+                    id: 2,
+                    title: "Texte 2 : Une lettre d'un correspondant",
+                    correctOrder: [
+                        "Medellín, le 12 octobre 2023",
+                        "Salut Thomas,",
+                        "Comment vas-tu ? Ici tout se passe très bien. Je t'écris aujourd'hui pour te raconter mon dernier voyage avec ma famille. Nous sommes allés à la côte atlantique le week-end dernier !",
+                        "Nous avons visité le parc Tayrona. C'était incroyable ! J'ai vu des singes, des oiseaux colorés et les plages étaient magnifiques. J'ai même nagé dans la mer des Caraïbes. Par contre, il faisait vraiment très chaud.",
+                        "J'espère que tu pourras venir un jour en Colombie pour voir ça. Raconte-moi comment se passent tes cours de français au lycée !",
+                        "À très bientôt,",
+                        "Carlos"
+                    ]
+                }
+            ],
+            ARGUMENTS_EXEMPLES: [
+                { arg: "Il faut réduire notre consommation de plastique au quotidien.", ex: "Par exemple, nous pouvons utiliser un sac en tissu réutilisable pour faire les courses." },
+                { arg: "Les transports en commun sont meilleurs pour la planète.", ex: "Prendre le bus ou le métro pour aller au lycée pollue beaucoup moins que d'utiliser la voiture." },
+                { arg: "Le recyclage permet de donner une seconde vie aux objets.", ex: "Le verre jeté dans la bonne poubelle est fondu pour fabriquer de nouvelles bouteilles." },
+                { arg: "L'alimentation locale aide à réduire la pollution.", ex: "Acheter des fruits cultivés dans notre région évite la pollution liée aux avions et aux bateaux." },
+                { arg: "Économiser l'énergie à la maison est très simple.", ex: "Éteindre les lumières en quittant une pièce et éteindre la télévision sont de bons réflexes." }
+            ]
+        };
+
+        // --- LOGIQUE DE L'APPLICATION (STATE & RENDER) ---
+        let dragData = null; // Stocke les informations de l'élément glissé
+
+        const app = {
+            state: {
+                structure: { type: 'lettre', bank: [], slots: [], verified: false },
+                ordre: { textIdx: 0, paragraphs: [], verified: false },
+                arguments: { bank: [], slots: [], verified: false }
+            },
+
+            // Initialiser toute l'application
+            init() {
+                this.initStructure('lettre');
+                this.initOrdre(0);
+                this.initArguments();
+            },
+
+            // Fonction utilitaire pour mélanger les tableaux
+            shuffle(array) {
+                let newArr = [...array];
+                for (let i = newArr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+                }
+                return newArr;
+            },
+
+            // Naviguer entre les onglets
+            switchTab(tabId) {
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+                document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.className = "tab-btn px-6 py-3 rounded-xl font-bold transition-all text-gray-600 hover:bg-gray-100";
+                });
+
+                const activeBtn = document.getElementById('btn-' + tabId);
+                if(tabId === 'structure') activeBtn.className = "tab-btn px-6 py-3 rounded-xl font-bold transition-all bg-blue-600 text-white shadow-md";
+                if(tabId === 'ordre') activeBtn.className = "tab-btn px-6 py-3 rounded-xl font-bold transition-all bg-yellow-500 text-white shadow-md";
+                if(tabId === 'arguments') activeBtn.className = "tab-btn px-6 py-3 rounded-xl font-bold transition-all bg-emerald-600 text-white shadow-md";
+            },
+
+            // Événements globaux de Drag & Drop
+            dragStart(e, group, sourceType, sourceIndex) {
+                dragData = { group, sourceType, sourceIndex };
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', sourceIndex); // Requis pour Firefox
+            },
+
+            drop(e, group, targetType, targetIndex) {
+                e.preventDefault();
+                if (!dragData || dragData.group !== group) return;
+
+                const { sourceType, sourceIndex } = dragData;
+
+                // Logique pour l'onglet 1 (Structures)
+                if (group === 'structure') {
+                    let bank = this.state.structure.bank;
+                    let slots = this.state.structure.slots;
+                    let item = sourceType === 'bank' ? bank[sourceIndex] : slots[sourceIndex];
+
+                    if (sourceType === 'bank' && targetType === 'slot') {
+                        if (slots[targetIndex] !== null) bank.push(slots[targetIndex]);
+                        slots[targetIndex] = item;
+                        bank.splice(sourceIndex, 1);
+                    } else if (sourceType === 'slot' && targetType === 'slot') {
+                        const temp = slots[targetIndex];
+                        slots[targetIndex] = item;
+                        slots[sourceIndex] = temp;
+                    } else if (sourceType === 'slot' && targetType === 'bank') {
+                        bank.push(item);
+                        slots[sourceIndex] = null;
+                    }
+                    this.renderStructure();
+                }
+
+                // Logique pour l'onglet 2 (Ordre des textes)
+                if (group === 'ordre') {
+                    if (sourceIndex === targetIndex) return;
+                    let paras = this.state.ordre.paragraphs;
+                    let item = paras.splice(sourceIndex, 1)[0];
+                    paras.splice(targetIndex, 0, item);
+                    this.renderOrdre();
+                }
+
+                // Logique pour l'onglet 3 (Argumentation)
+                if (group === 'arguments') {
+                    let bank = this.state.arguments.bank;
+                    let slots = this.state.arguments.slots;
+                    let item = sourceType === 'bank' ? bank[sourceIndex] : slots[sourceIndex];
+
+                    if (sourceType === 'bank' && targetType === 'slot') {
+                        if (slots[targetIndex] !== null) bank.push(slots[targetIndex]);
+                        slots[targetIndex] = item;
+                        bank.splice(sourceIndex, 1);
+                    } else if (sourceType === 'slot' && targetType === 'slot') {
+                        const temp = slots[targetIndex];
+                        slots[targetIndex] = item;
+                        slots[sourceIndex] = temp;
+                    } else if (sourceType === 'slot' && targetType === 'bank') {
+                        bank.push(item);
+                        slots[sourceIndex] = null;
+                    }
+                    this.renderArguments();
+                }
+
+                dragData = null; // Réinitialisation
+            },
+
+            verify(group) {
+                this.state[group].verified = true;
+                if (group === 'structure') this.renderStructure();
+                if (group === 'ordre') this.renderOrdre();
+                if (group === 'arguments') this.renderArguments();
+            },
+
+            // --- ONGLET 1 : LA STRUCTURE ---
+            initStructure(type) {
+                const struct = DATA.STRUCTURES[type];
+                this.state.structure.type = type;
+                this.state.structure.bank = this.shuffle(struct.parts);
+                this.state.structure.slots = Array(struct.parts.length).fill(null);
+                this.state.structure.verified = false;
+                this.renderStructure();
+            },
+
+            renderStructure() {
+                const { type, bank, slots, verified } = this.state.structure;
+                const struct = DATA.STRUCTURES[type];
+                const isComplete = slots.every(s => s !== null);
+
+                let bankHtml = bank.map((item, idx) => `
+                    <div draggable="true" ondragstart="app.dragStart(event, 'structure', 'bank', ${idx})"
+                         class="bg-white p-3 rounded shadow-sm border border-gray-200 cursor-grab active:cursor-grabbing hover:bg-blue-50 transition-colors">
+                        ${item}
+                    </div>
+                `).join('');
+                if (bank.length === 0) bankHtml = `<p class="text-center text-gray-400 italic mt-10">La banque est vide, parfait !</p>`;
+
+                let slotsHtml = slots.map((item, idx) => {
+                    let isCorrect = verified && item === struct.parts[idx];
+                    let bgClass = !item ? 'bg-gray-50 border-gray-300' : 'bg-blue-50 border-blue-400';
+                    if (verified && item) bgClass = isCorrect ? 'bg-green-100 border-green-500' : 'bg-red-100 border-red-500';
+
+                    let itemHtml = !item
+                        ? `<span class="text-gray-400 italic text-sm">Glisse une partie ici...</span>`
+                        : `<div draggable="true" ondragstart="app.dragStart(event, 'structure', 'slot', ${idx})" class="flex-1 bg-white p-2 rounded shadow-sm cursor-grab border border-gray-100">${item}</div>`;
+
+                    let iconHtml = verified && item ? `<span class="ml-2 text-xl">${isCorrect ? '✅' : '❌'}</span>` : '';
+
+                    return `
+                    <div ondragover="event.preventDefault()" ondrop="app.drop(event, 'structure', 'slot', ${idx})"
+                         class="flex items-center min-h-[50px] p-2 rounded-lg border-2 border-dashed transition-all ${bgClass}">
+                        <span class="w-8 h-8 flex items-center justify-center bg-white rounded-full font-bold text-gray-400 mr-3 shadow-sm">${idx + 1}</span>
+                        ${itemHtml}
+                        ${iconHtml}
+                    </div>`;
+                }).join('');
+
+                let optionsHtml = Object.values(DATA.STRUCTURES).map(s =>
+                    `<option value="${s.id}" ${s.id === type ? 'selected' : ''}>${s.title}</option>`
+                ).join('');
+
+                document.getElementById('tab-structure').innerHTML = `
+                    <div class="flex flex-col sm:flex-row justify-between items-center bg-blue-50 p-4 rounded-lg">
+                        <div>
+                            <h2 class="text-xl font-bold text-blue-800">Étape 1 : L'architecture du texte</h2>
+                            <p class="text-gray-600">Choisis un type de texte et glisse les parties dans le bon ordre.</p>
+                        </div>
+                        <select onchange="app.initStructure(this.value)" class="mt-4 sm:mt-0 p-2 border-2 border-blue-300 rounded-md bg-white text-blue-900 font-semibold focus:outline-none focus:border-blue-500">
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+                        <div ondragover="event.preventDefault()" ondrop="app.drop(event, 'structure', 'bank', 0)" class="bg-gray-50 p-4 rounded-xl border-2 border-dashed border-gray-300 min-h-[300px]">
+                            <h3 class="font-bold text-gray-700 mb-4 text-center">Éléments à placer (Banque)</h3>
+                            <div class="flex flex-col gap-2">${bankHtml}</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl shadow-md border border-gray-100">
+                            <h3 class="font-bold text-blue-900 mb-4 text-center">Structure finale</h3>
+                            <div class="flex flex-col gap-2">${slotsHtml}</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-center gap-4 mt-6">
+                        <button onclick="app.verify('structure')" ${!isComplete ? 'disabled' : ''} class="px-6 py-3 rounded-full font-bold text-white transition-transform transform hover:scale-105 shadow-md ${!isComplete ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}">
+                            Vérifier mes réponses
+                        </button>
+                        <button onclick="app.initStructure('${type}')" class="px-6 py-3 rounded-full font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors shadow-sm">
+                            Recommencer
+                        </button>
+                    </div>
+                `;
+            },
+
+            // --- ONGLET 2 : METTRE EN ORDRE ---
+            initOrdre(textIdx) {
+                const textData = DATA.TEXTES_DESORDRE[textIdx];
+                this.state.ordre.textIdx = textIdx;
+                this.state.ordre.paragraphs = this.shuffle(textData.correctOrder);
+                this.state.ordre.verified = false;
+                this.renderOrdre();
+            },
+
+            renderOrdre() {
+                const { textIdx, paragraphs, verified } = this.state.ordre;
+                const currentTextData = DATA.TEXTES_DESORDRE[textIdx];
+
+                let optionsHtml = DATA.TEXTES_DESORDRE.map((t, idx) =>
+                    `<option value="${idx}" ${idx === textIdx ? 'selected' : ''}>${t.title}</option>`
+                ).join('');
+
+                let parasHtml = paragraphs.map((p, idx) => {
+                    let isCorrect = verified && p === currentTextData.correctOrder[idx];
+                    let bgClass = verified ? (isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50') : 'border-gray-200';
+
+                    return `
+                    <div draggable="true" ondragstart="app.dragStart(event, 'ordre', 'para', ${idx})" ondragover="event.preventDefault()" ondrop="app.drop(event, 'ordre', 'para', ${idx})"
+                         class="flex gap-4 items-stretch p-4 rounded-lg border-2 bg-white cursor-grab active:cursor-grabbing transition-all hover:shadow-md ${bgClass}">
+                        <div class="flex flex-col items-center justify-center text-gray-400 cursor-move">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" /></svg>
+                            <span class="font-bold text-sm mt-1">${idx + 1}</span>
+                        </div>
+                        <div class="flex-1 text-gray-800 text-lg leading-relaxed">${p}</div>
+                        ${verified ? `<div class="flex items-center"><span class="text-2xl">${isCorrect ? '✅' : '❌'}</span></div>` : ''}
+                    </div>`;
+                }).join('');
+
+                document.getElementById('tab-ordre').innerHTML = `
+                    <div class="flex flex-col sm:flex-row justify-between items-center bg-yellow-50 p-4 rounded-lg">
+                        <div>
+                            <h2 class="text-xl font-bold text-yellow-800">Étape 2 : Le puzzle du texte</h2>
+                            <p class="text-gray-700">Ces textes sont en désordre ! Glisse et dépose les paragraphes pour reformer le texte complet.</p>
+                        </div>
+                        <select onchange="app.initOrdre(Number(this.value))" class="mt-4 sm:mt-0 p-2 border-2 border-yellow-300 rounded-md bg-white text-yellow-900 font-semibold focus:outline-none focus:border-yellow-500">
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 mt-6">
+                        <div class="flex flex-col gap-3">${parasHtml}</div>
+                    </div>
+                    <div class="flex justify-center gap-4 mt-6">
+                        <button onclick="app.verify('ordre')" class="px-6 py-3 rounded-full font-bold text-white bg-green-600 hover:bg-green-700 transition-transform transform hover:scale-105 shadow-md">
+                            Vérifier l'ordre
+                        </button>
+                        <button onclick="app.initOrdre(${textIdx})" class="px-6 py-3 rounded-full font-bold text-yellow-800 bg-yellow-100 hover:bg-yellow-200 transition-colors shadow-sm">
+                            Recommencer
+                        </button>
+                    </div>
+                `;
+            },
+
+            // --- ONGLET 3 : ARGUMENTS ET EXEMPLES ---
+            initArguments() {
+                const exemples = DATA.ARGUMENTS_EXEMPLES.map(item => item.ex);
+                this.state.arguments.bank = this.shuffle(exemples);
+                this.state.arguments.slots = Array(DATA.ARGUMENTS_EXEMPLES.length).fill(null);
+                this.state.arguments.verified = false;
+                this.renderArguments();
+            },
+
+            renderArguments() {
+                const { bank, slots, verified } = this.state.arguments;
+                const isComplete = slots.every(s => s !== null);
+
+                let bankHtml = bank.map((ex, idx) => `
+                    <div draggable="true" ondragstart="app.dragStart(event, 'arguments', 'bank', ${idx})"
+                         class="bg-white text-blue-900 px-4 py-2 rounded-lg shadow cursor-grab active:cursor-grabbing border-l-4 border-blue-500 hover:bg-blue-100 transition-colors flex-1 min-w-[250px]">
+                        ${ex}
+                    </div>
+                `).join('');
+                if (bank.length === 0) bankHtml = `<span class="text-blue-400 italic">Tous les exemples sont placés !</span>`;
+
+                let slotsHtml = DATA.ARGUMENTS_EXEMPLES.map((pair, idx) => {
+                    let slotItem = slots[idx];
+                    let isCorrect = verified && slotItem === pair.ex;
+                    let bgClass = !slotItem ? 'bg-gray-50 border-gray-300' : 'bg-blue-50 border-blue-400';
+                    if (verified && slotItem) bgClass = isCorrect ? 'bg-green-100 border-green-500' : 'bg-red-100 border-red-500';
+
+                    let slotContentHtml = !slotItem
+                        ? `<span class="text-gray-400 italic text-center w-full">Glisse l'exemple correspondant ici</span>`
+                        : `<div draggable="true" ondragstart="app.dragStart(event, 'arguments', 'slot', ${idx})" class="w-full bg-white p-3 rounded shadow-sm cursor-grab border-l-4 border-blue-500 text-blue-900"><span class="font-bold mr-2 text-blue-600">Ex :</span>${slotItem}</div>`;
+
+                    let iconHtml = verified && slotItem ? `<span class="ml-3 text-2xl">${isCorrect ? '✅' : '❌'}</span>` : '';
+
+                    return `
+                    <div class="flex flex-col md:flex-row gap-4 items-stretch bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex-1 bg-emerald-100 p-4 rounded-lg border border-emerald-300 flex items-center">
+                            <span class="font-bold text-emerald-900 mr-2">Argument :</span>
+                            <span class="text-emerald-800">${pair.arg}</span>
+                        </div>
+                        <div ondragover="event.preventDefault()" ondrop="app.drop(event, 'arguments', 'slot', ${idx})"
+                             class="flex-1 rounded-lg border-2 border-dashed p-4 flex items-center transition-all min-h-[80px] ${bgClass}">
+                            ${slotContentHtml}
+                            ${iconHtml}
+                        </div>
+                    </div>`;
+                }).join('');
+
+                document.getElementById('tab-arguments').innerHTML = `
+                    <div class="bg-emerald-50 p-4 rounded-lg mb-6">
+                        <h2 class="text-xl font-bold text-emerald-800">Étape 3 : Argumentation (L'écologie)</h2>
+                        <p class="text-gray-700">Un bon essai a besoin d'arguments ET d'exemples. Associe chaque exemple (blocs bleus) à son argument (blocs verts).</p>
+                    </div>
+                    <div ondragover="event.preventDefault()" ondrop="app.drop(event, 'arguments', 'bank', 0)" class="bg-blue-50 p-4 rounded-xl border-2 border-blue-200 shadow-inner mb-6">
+                        <h3 class="font-bold text-blue-800 mb-3">Exemples à glisser :</h3>
+                        <div class="flex flex-wrap gap-3">${bankHtml}</div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4">${slotsHtml}</div>
+                    <div class="flex justify-center gap-4 mt-6">
+                        <button onclick="app.verify('arguments')" ${!isComplete ? 'disabled' : ''} class="px-6 py-3 rounded-full font-bold text-white transition-transform transform hover:scale-105 shadow-md ${!isComplete ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}">
+                            Vérifier les paires
+                        </button>
+                        <button onclick="app.initArguments()" class="px-6 py-3 rounded-full font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 transition-colors shadow-sm">
+                            Recommencer
+                        </button>
+                    </div>
+                `;
+            }
+        };
+
+        // Initialiser l'application quand le DOM est prêt
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>
